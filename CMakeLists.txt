@@ -1,9 +1,11 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.14)
 
-project(fast_float VERSION 6.1.3 LANGUAGES CXX)
+
+project(fast_float VERSION 8.1.0 LANGUAGES CXX)
 set(FASTFLOAT_CXX_STANDARD 11 CACHE STRING "the C++ standard to use for fastfloat")
 set(CMAKE_CXX_STANDARD ${FASTFLOAT_CXX_STANDARD})
 option(FASTFLOAT_TEST "Enable tests" OFF)
+
 if(FASTFLOAT_TEST)
   enable_testing()
   add_subdirectory(tests)
@@ -29,6 +31,16 @@ if(FASTFLOAT_INSTALL)
 endif()
 
 add_library(fast_float INTERFACE)
+
+
+option(FASTFLOAT_BENCHMARKS "Enable benchmarks" OFF)
+if(FASTFLOAT_BENCHMARKS)
+  add_subdirectory(benchmarks)
+else(FASTFLOAT_BENCHMARKS)
+  message(STATUS "Benchmarks are disabled. Set FASTFLOAT_BENCHMARKS to ON to build benchmarks (assumes C++17).")
+endif(FASTFLOAT_BENCHMARKS)
+
+
 add_library(FastFloat::fast_float ALIAS fast_float)
 target_include_directories(
   fast_float
@@ -44,10 +56,14 @@ if(FASTFLOAT_SANITIZE)
     target_link_libraries(fast_float INTERFACE -fuse-ld=gold)
   endif()
 endif()
-if(MSVC_VERSION GREATER 1910)
+
+include(CheckCXXCompilerFlag)
+unset(FASTFLOAT_COMPILER_SUPPORTS_PERMISSIVE)
+CHECK_CXX_COMPILER_FLAG(/permissive- FASTFLOAT_COMPILER_SUPPORTS_PERMISSIVE)
+
+if(FASTFLOAT_COMPILER_SUPPORTS_PERMISSIVE)
   target_compile_options(fast_float INTERFACE /permissive-)
 endif()
-
 
 if(FASTFLOAT_INSTALL)
   include(CMakePackageConfigHelpers)
