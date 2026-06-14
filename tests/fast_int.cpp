@@ -1614,7 +1614,7 @@ int main() {
       uint64_t mag = neg ? (~uint64_t(value) + 1) : uint64_t(value);
       std::string s;
       if (mag == 0) {
-        s = "0";
+        s += '0';
       }
       while (mag != 0) {
         s += digit_to_char(int(mag % uint64_t(base)));
